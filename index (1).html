@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Joy Purohit — Software Engineer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================================
+       CSS CUSTOM PROPERTIES — Edit colors / fonts here
+    ============================================================ */
+    :root {
+      --bg:        #f5f3ef;
+      --surface:   #ffffff;
+      --border:    #e2ddd7;
+      --muted:     #b5aea5;
+      --text-dim:  #7c746b;
+      --text:      #3d3830;
+      --text-hi:   #1a1612;
+      --accent:    #0f7b6c;   /* ← Change accent color here */
+      --accent2:   #5b4fcf;
+      --accent3:   #c2410c;
+      --radius:    12px;
+      --font-display: 'DM Serif Display', Georgia, serif;
+      --font-body:    'Outfit', sans-serif;
+      --font-mono:    'DM Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-body);
+      font-weight: 300;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── Noise texture overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: .4;
+    }
+
+    /* ── Ambient glow blobs ── */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: .07;
+      pointer-events: none;
+      z-index: 0;
+      animation: drift 18s ease-in-out infinite alternate;
+    }
+    .blob-1 { width: 600px; height: 600px; background: var(--accent);  top: -200px; left: -200px; }
+    .blob-2 { width: 500px; height: 500px; background: var(--accent2); bottom: -150px; right: -150px; animation-delay: -9s; }
+    @keyframes drift { to { transform: translate(40px, 30px) scale(1.05); } }
+
+    /* ════════════════════════════════════
+       NAV
+    ════════════════════════════════════ */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 60px;
+      background: rgba(245,243,239,.82);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      transition: padding .3s;
+    }
+
+    /* ── CHANGE: Replace "JP" with your initials or logo ── */
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.4rem;
+      color: var(--text-hi);
+      letter-spacing: .02em;
+    }
+    .nav-logo span { color: var(--accent); }
+
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a {
+      font-size: .85rem;
+      font-weight: 400;
+      color: var(--text-dim);
+      text-decoration: none;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    .nav-cta {
+      padding: 8px 22px;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      color: var(--accent) !important;
+      transition: background .2s, color .2s !important;
+    }
+    .nav-cta:hover { background: var(--accent); color: var(--bg) !important; }
+
+    /* ════════════════════════════════════
+       HERO
+    ════════════════════════════════════ */
+    #hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 140px 60px 100px;
+      z-index: 1;
+    }
+
+    .hero-inner { max-width: 760px; }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: .78rem;
+      color: var(--accent);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp .6s .2s forwards;
+    }
+    .hero-tag::before {
+      content: '';
+      display: inline-block;
+      width: 28px; height: 1px;
+      background: var(--accent);
+    }
+
+    /* ── CHANGE: Edit name and tagline below ── */
+    .hero-name {
+      font-family: var(--font-display);
+      font-size: clamp(3rem, 7vw, 6rem);
+      color: var(--text-hi);
+      line-height: 1.05;
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: fadeUp .7s .35s forwards;
+    }
+    .hero-name em { font-style: italic; color: var(--accent); }
+
+    .hero-sub {
+      font-size: 1.15rem;
+      color: var(--text-dim);
+      max-width: 520px;
+      margin-bottom: 48px;
+      opacity: 0;
+      animation: fadeUp .7s .5s forwards;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp .7s .65s forwards;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: var(--radius);
+      font-size: .9rem;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform .2s, box-shadow .2s, background .2s;
+    }
+    .btn:hover { transform: translateY(-2px); }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 0 40px rgba(15,123,108,.12);
+    }
+    .btn-primary:hover { box-shadow: 0 0 60px rgba(15,123,108,.25); }
+
+    .btn-outline {
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: var(--surface);
+    }
+    .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Scroll indicator */
+    .scroll-hint {
+      position: absolute;
+      bottom: 40px; left: 60px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-mono);
+      font-size: .72rem;
+      color: var(--muted);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeUp .6s 1s forwards;
+    }
+    .scroll-hint::after {
+      content: '';
+      display: block;
+      width: 1px;
+      height: 48px;
+      background: linear-gradient(to bottom, var(--muted), transparent);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 50% { opacity: .3; } }
+
+    /* Stats row */
+    .hero-stats {
+      position: absolute;
+      right: 60px; bottom: 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      opacity: 0;
+      animation: fadeUp .6s .8s forwards;
+    }
+    .stat-item { text-align: right; }
+    .stat-number {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 2rem;
+      color: var(--text-hi);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: .75rem;
+      color: var(--text-dim);
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ════════════════════════════════════
+       SECTION CHROME
+    ════════════════════════════════════ */
+    section { position: relative; z-index: 1; padding: 100px 60px; }
+
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: .75rem;
+      color: var(--accent);
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-label::before {
+      content: '';
+      width: 20px; height: 1px;
+      background: var(--accent);
+    }
+
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      color: var(--text-hi);
+      line-height: 1.1;
+      margin-bottom: 60px;
+    }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, var(--border), transparent);
+      margin: 0 60px;
+    }
+
+    /* ════════════════════════════════════
+       ABOUT
+    ════════════════════════════════════ */
+    #about .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: start;
+    }
+
+    /* ── CHANGE: Edit bio text below ── */
+    .about-text p {
+      color: var(--text);
+      margin-bottom: 20px;
+      font-size: 1.05rem;
+    }
+    .about-text strong { color: var(--text-hi); font-weight: 500; }
+
+    .about-cards { display: flex; flex-direction: column; gap: 16px; }
+
+    .info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: border-color .2s, transform .2s;
+    }
+    .info-card:hover { border-color: var(--accent); transform: translateX(4px); }
+
+    .info-card-icon {
+      width: 40px; height: 40px;
+      background: rgba(15,123,108,.08);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .info-card-label { font-size: .75rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: .06em; }
+    .info-card-value { font-size: .95rem; color: var(--text-hi); font-weight: 400; }
+
+    /* ════════════════════════════════════
+       EXPERIENCE
+    ════════════════════════════════════ */
+    #experience .timeline { position: relative; padding-left: 32px; }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 8px; bottom: 8px;
+      width: 1px;
+      background: linear-gradient(to bottom, var(--accent), var(--border));
+    }
+
+    .timeline-item {
+      position: relative;
+      margin-bottom: 56px;
+      opacity: 0;
+      transform: translateX(-16px);
+      transition: opacity .5s, transform .5s;
+    }
+    .timeline-item.visible { opacity: 1; transform: translateX(0); }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -37px; top: 6px;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 12px rgba(15,123,108,.35);
+    }
+
+    .timeline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 6px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    /* ── CHANGE: Job titles, companies, dates in timeline items below ── */
+    .timeline-role {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      color: var(--text-hi);
+    }
+
+    .timeline-period {
+      font-family: var(--font-mono);
+      font-size: .75rem;
+      color: var(--accent);
+      background: rgba(15,123,108,.08);
+      padding: 4px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .timeline-company {
+      font-size: .9rem;
+      color: var(--text-dim);
+      margin-bottom: 16px;
+    }
+    .timeline-company span { color: var(--accent2); }
+
+    .timeline-bullets { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .timeline-bullets li {
+      font-size: .9rem;
+      color: var(--text);
+      display: flex;
+      gap: 10px;
+    }
+    .timeline-bullets li::before {
+      content: '▸';
+      color: var(--accent);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ════════════════════════════════════
+       PROJECTS
+    ════════════════════════════════════ */
+    #projects .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 24px;
+    }
+
+    /* ── CHANGE: Edit project cards below in HTML ── */
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      transition: border-color .25s, transform .25s, box-shadow .25s;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    .project-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity .5s, transform .5s, border-color .25s, box-shadow .25s;
+    }
+    .project-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0,0,0,.1);
+    }
+
+    .project-header { display: flex; justify-content: space-between; align-items: flex-start; }
+
+    .project-icon {
+      width: 44px; height: 44px;
+      background: rgba(15,123,108,.08);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+
+    .project-link {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 1.1rem;
+      transition: color .2s;
+    }
+    .project-link:hover { color: var(--accent); }
+
+    .project-name {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      color: var(--text-hi);
+    }
+
+    .project-desc {
+      font-size: .88rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    .project-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; }
+
+    .tag {
+      font-family: var(--font-mono);
+      font-size: .72rem;
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+
+    /* ════════════════════════════════════
+       SKILLS
+    ════════════════════════════════════ */
+    #skills .skills-wrapper {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 24px;
+    }
+
+    .skill-group {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: border-color .2s;
+    }
+    .skill-group:hover { border-color: var(--accent); }
+
+    .skill-group-title {
+      font-family: var(--font-mono);
+      font-size: .75rem;
+      color: var(--accent);
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ── CHANGE: Edit skill chips inside each group in HTML ── */
+    .skill-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .chip {
+      font-size: .8rem;
+      padding: 5px 12px;
+      border-radius: 6px;
+      background: rgba(0,0,0,.03);
+      border: 1px solid var(--border);
+      color: var(--text);
+      transition: background .2s, border-color .2s, color .2s;
+    }
+    .chip:hover { background: rgba(15,123,108,.08); border-color: var(--accent); color: var(--accent); }
+
+    /* ════════════════════════════════════
+       EDUCATION
+    ════════════════════════════════════ */
+    #education .edu-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    /* ── CHANGE: Edit education cards in HTML below ── */
+    .edu-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      transition: border-color .2s;
+    }
+    .edu-card:hover { border-color: var(--accent2); }
+
+    .edu-degree {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      color: var(--text-hi);
+      margin-bottom: 6px;
+    }
+    .edu-school { font-size: .9rem; color: var(--accent2); margin-bottom: 4px; }
+    .edu-period { font-family: var(--font-mono); font-size: .75rem; color: var(--text-dim); margin-bottom: 16px; }
+    .edu-courses {
+      font-size: .82rem;
+      color: var(--text-dim);
+      line-height: 1.7;
+    }
+    .edu-courses strong { color: var(--text); font-weight: 400; }
+
+    /* ════════════════════════════════════
+       CONTACT
+    ════════════════════════════════════ */
+    #contact {
+      text-align: center;
+    }
+
+    .contact-wrap {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* ── CHANGE: Update email and social links below ── */
+    .contact-email {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-display);
+      font-size: clamp(1.3rem, 3vw, 2rem);
+      color: var(--text-hi);
+      text-decoration: none;
+      margin-bottom: 48px;
+      transition: color .2s;
+    }
+    .contact-email:hover { color: var(--accent); }
+
+    .socials {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .social-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: .85rem;
+      font-family: var(--font-mono);
+      transition: border-color .2s, color .2s, background .2s;
+    }
+    .social-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(15,123,108,.05);
+    }
+
+    /* ════════════════════════════════════
+       FOOTER
+    ════════════════════════════════════ */
+    footer {
+      position: relative; z-index: 1;
+      text-align: center;
+      padding: 32px 60px;
+      border-top: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: .72rem;
+      color: var(--muted);
+      letter-spacing: .06em;
+    }
+
+    /* ════════════════════════════════════
+       SCROLLBAR
+    ════════════════════════════════════ */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 2px; }
+
+    /* ════════════════════════════════════
+       RESPONSIVE
+    ════════════════════════════════════ */
+    @media (max-width: 900px) {
+      nav { padding: 16px 24px; }
+      .nav-links { display: none; }
+      section { padding: 80px 24px; }
+      #hero { padding: 120px 24px 80px; }
+      .hero-stats { display: none; }
+      .scroll-hint { left: 24px; }
+      #about .about-grid { grid-template-columns: 1fr; gap: 40px; }
+      #education .edu-grid { grid-template-columns: 1fr; }
+      .divider { margin: 0 24px; }
+      #projects .projects-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Ambient blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <!-- ══════════════════════════════════
+       NAV
+       CHANGE: Update nav logo initials, links, and resume href
+  ══════════════════════════════════ -->
+  <nav>
+    <div class="nav-logo">Joy <span>Purohit</span></div>
+    <ul class="nav-links">
+      <li><a href="#about">About</a></li>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#contact" class="nav-cta">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- ══════════════════════════════════
+       HERO
+       CHANGE: Edit name, tagline, resume link, location, email, years of exp
+  ══════════════════════════════════ -->
+  <section id="hero">
+    <div class="hero-inner">
+      <div class="hero-tag">Software Engineer · New York</div>
+
+      <h1 class="hero-name">
+        Building systems<br>that <em>scale.</em>
+      </h1>
+
+      <p class="hero-sub">
+        Hi, I'm <strong style="color:var(--text-hi)">Joy Purohit</strong> — a software engineer specialising in distributed systems, LLM-powered applications, and full-stack engineering. Currently pursuing my MS in Computer Science at Stony Brook University.
+      </p>
+
+      <div class="hero-actions">
+        <!-- CHANGE: Update href to your actual resume PDF path -->
+        <a href="JoyPurohit_Microsoft.pdf" download class="btn btn-primary">
+          ↓ Download Résumé
+        </a>
+        <a href="#experience" class="btn btn-outline">View My Work →</a>
+      </div>
+    </div>
+
+    <div class="scroll-hint">Scroll</div>
+
+    <!-- CHANGE: Update stats to match your real numbers -->
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-number">2+</span>
+        <span class="stat-label">Years Experience</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">10M</span>
+        <span class="stat-label">Txns / Minute</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">15+</span>
+        <span class="stat-label">Microservices Monitored</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════════════════════════
+       ABOUT
+       CHANGE: Edit bio paragraphs, location, email, university
+  ══════════════════════════════════ -->
+  <section id="about">
+    <div class="section-label">About Me</div>
+    <h2 class="section-title">Who I am</h2>
+
+    <div class="about-grid">
+      <div class="about-text">
+        <p>
+          I'm a <strong>full-stack software engineer</strong> with a passion for building scalable, high-performance systems. Over two years at Wells Fargo, I architected real-time data pipelines, LLM-powered chatbots, and distributed microservices that collectively handle millions of transactions daily.
+        </p>
+        <p>
+          I love the intersection of <strong>backend engineering and applied AI</strong> — from designing Kafka pipelines and MongoDB schemas to fine-tuning RAG systems and deploying agentic workflows. I believe software should be both technically elegant and meaningfully impactful.
+        </p>
+        <!-- CHANGE: Personalise this paragraph with your own interests or goals -->
+        <p>
+          Outside of code, I enjoy exploring new tech, contributing to open-source, and thinking about how AI will reshape how we build products. I'm currently open to <strong>internship and full-time opportunities</strong> in software engineering and ML systems.
+        </p>
+      </div>
+
+      <div class="about-cards">
+        <!-- CHANGE: Update each card value to match your info -->
+        <div class="info-card">
+          <div class="info-card-icon">📍</div>
+          <div>
+            <div class="info-card-label">Location</div>
+            <div class="info-card-value">Stony Brook, New York</div>
+          </div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-icon">🎓</div>
+          <div>
+            <div class="info-card-label">Education</div>
+            <div class="info-card-value">MS Computer Science — Stony Brook</div>
+          </div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-icon">📧</div>
+          <div>
+            <div class="info-card-label">Email</div>
+            <div class="info-card-value">joy.purohit@stonybrook.edu</div>
+          </div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-icon">✅</div>
+          <div>
+            <div class="info-card-label">Status</div>
+            <div class="info-card-value">Open to Opportunities</div>
+          </div>
+        </div>
+        <div class="info-card">
+          <div class="info-card-icon">📞</div>
+          <div>
+            <div class="info-card-label">Phone</div>
+            <div class="info-card-value">+1 (934) 227-9172</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════════════════════════
+       EXPERIENCE
+       CHANGE: Edit role, company, period, and bullet points
+       ADD a new .timeline-item block to add more roles
+       DELETE a .timeline-item block to remove a role
+  ══════════════════════════════════ -->
+  <section id="experience">
+    <div class="section-label">Work History</div>
+    <h2 class="section-title">Where I've worked</h2>
+
+    <div class="timeline">
+
+      <div class="timeline-item">
+        <div class="timeline-header">
+          <div class="timeline-role">Software Engineer</div>
+          <div class="timeline-period">Aug 2023 — Jul 2025</div>
+        </div>
+        <div class="timeline-company"><span>Wells Fargo</span> · India</div>
+        <ul class="timeline-bullets">
+          <li>Built an end-to-end LLM-powered chatbot with RAG (Confluence), eliminating manual searches and speeding up response times by 200%.</li>
+          <li>Modernized legacy systems with distributed microservices, REST & reconciliation APIs, and Apigee proxies — achieving 100% test coverage and cutting data sync latency by 30%.</li>
+          <li>Designed MongoDB schemas with indexing and sharding; configured AVI load balancer, achieving 30% faster customer record processing.</li>
+          <li>Architected a Kafka pipeline for real-time parallel operations, processing 10M transactions/minute.</li>
+          <li>Automated CI/CD pipelines for 10+ microservices with post-deployment tests and security checks, reducing production failures by 60%.</li>
+          <li>Built React UI for customer microservice operations with 90% Jest test coverage.</li>
+          <li>Constructed Grafana dashboards monitoring 15+ microservices, cutting incident response time by 35%.</li>
+        </ul>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-header">
+          <div class="timeline-role">Software Engineer Intern</div>
+          <div class="timeline-period">May 2022 — Jul 2022</div>
+        </div>
+        <div class="timeline-company"><span>Wells Fargo</span> · India</div>
+        <ul class="timeline-bullets">
+          <li>Programmed an automated resume ranking system using entity-level similarity scoring, improving parsing efficiency by 40% and reducing screening time by 70%.</li>
+          <li>Trained NER and deduplication models on 10,000+ resumes — 85% entity accuracy, 25% duplicate reduction.</li>
+          <li>Deployed on AWS EC2 with Docker + ECR; integrated CloudWatch observability, improving reliability by 30%.</li>
+          <li>Configured GitHub Actions CI/CD to automate deployments, reducing release time by 50%.</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════════════════════════
+       PROJECTS
+       CHANGE: Edit project names, descriptions, tags, and links
+       ADD a new .project-card block to add a project
+       DELETE a .project-card block to remove a project
+  ══════════════════════════════════ -->
+  <section id="projects">
+    <div class="section-label">Selected Work</div>
+    <h2 class="section-title">Projects I've built</h2>
+
+    <div class="projects-grid">
+
+      <div class="project-card">
+        <div class="project-header">
+          <div class="project-icon">🤖</div>
+          <!-- CHANGE: Update href to your GitHub project link -->
+          <a href="#" class="project-link" title="View on GitHub">↗</a>
+        </div>
+        <div class="project-name">BrewBot</div>
+        <div class="project-desc">
+          End-to-end AI agentic system with order-taking, details, and recommendation agents powered by LLaMA-3-8B. Built a RAG pipeline with optimised query handling, reducing manual effort by 60% and improving contextual accuracy by 40%.
+        </div>
+        <div class="project-tags">
+          <span class="tag">Python</span>
+          <span class="tag">TensorFlow</span>
+          <span class="tag">Pinecone</span>
+          <span class="tag">React.js</span>
+          <span class="tag">Firebase</span>
+          <span class="tag">Docker</span>
+          <span class="tag">LLaMA-3</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-header">
+          <div class="project-icon">☁️</div>
+          <a href="#" class="project-link" title="View on GitHub">↗</a>
+        </div>
+        <div class="project-name">Azure Data Engineering Pipeline</div>
+        <div class="project-desc">
+          Orchestrated data ingestion workflows in Azure Data Factory, moving raw data from HTTP sources into ADLS. Developed scalable PySpark transformations in Databricks integrated with Power BI for real-time analytics.
+        </div>
+        <div class="project-tags">
+          <span class="tag">Azure Data Factory</span>
+          <span class="tag">Databricks</span>
+          <span class="tag">PySpark</span>
+          <span class="tag">ADLS</span>
+          <span class="tag">Power BI</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <div class="project-header">
+          <div class="project-icon">🎯</div>
+          <a href="#" class="project-link" title="View on GitHub">↗</a>
+        </div>
+        <div class="project-name">InterviewGenie</div>
+        <div class="project-desc">
+          Full-stack AI interview preparation platform leveraging the Gemini API. Provides role-based Q&A, dynamic AI explanations, and personalised practice workflows — boosting preparation efficiency by 50%.
+        </div>
+        <div class="project-tags">
+          <span class="tag">MongoDB</span>
+          <span class="tag">Node.js</span>
+          <span class="tag">Express</span>
+          <span class="tag">React.js</span>
+          <span class="tag">Gemini API</span>
+          <span class="tag">Docker</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════════════════════════
+       SKILLS
+       CHANGE: Add/remove chips inside each .skill-chips div
+       ADD a new .skill-group block to add a category
+  ══════════════════════════════════ -->
+  <section id="skills">
+    <div class="section-label">Technical Skills</div>
+    <h2 class="section-title">My toolkit</h2>
+
+    <div class="skills-wrapper">
+
+      <div class="skill-group">
+        <div class="skill-group-title">⚡ Languages</div>
+        <div class="skill-chips">
+          <span class="chip">C++</span>
+          <span class="chip">Python</span>
+          <span class="chip">Java</span>
+          <span class="chip">JavaScript</span>
+          <span class="chip">TypeScript</span>
+          <span class="chip">SQL</span>
+          <span class="chip">NoSQL</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title">🏗 Frameworks</div>
+        <div class="skill-chips">
+          <span class="chip">Spring Boot</span>
+          <span class="chip">Spring WebFlux</span>
+          <span class="chip">React.js</span>
+          <span class="chip">Node.js</span>
+          <span class="chip">Express</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title">☁️ Cloud & Infra</div>
+        <div class="skill-chips">
+          <span class="chip">AWS EC2</span>
+          <span class="chip">AWS S3</span>
+          <span class="chip">AWS EKS</span>
+          <span class="chip">Azure Data Factory</span>
+          <span class="chip">Databricks</span>
+          <span class="chip">Docker</span>
+          <span class="chip">Kubernetes</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title">🗄 Databases</div>
+        <div class="skill-chips">
+          <span class="chip">MongoDB</span>
+          <span class="chip">MySQL</span>
+          <span class="chip">PostgreSQL</span>
+          <span class="chip">Neo4j</span>
+          <span class="chip">Firebase</span>
+          <span class="chip">Pinecone</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title">🔁 Streaming & Big Data</div>
+        <div class="skill-chips">
+          <span class="chip">Kafka</span>
+          <span class="chip">Spark</span>
+          <span class="chip">Hadoop</span>
+          <span class="chip">PySpark</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title">🤖 AI / ML</div>
+        <div class="skill-chips">
+          <span class="chip">TensorFlow</span>
+          <span class="chip">PyTorch</span>
+          <span class="chip">RAG</span>
+          <span class="chip">LLaMA-3</span>
+          <span class="chip">Gemini API</span>
+          <span class="chip">NumPy</span>
+          <span class="chip">Pandas</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title">🛠 DevOps & Tools</div>
+        <div class="skill-chips">
+          <span class="chip">Git</span>
+          <span class="chip">Jenkins</span>
+          <span class="chip">GitHub Actions</span>
+          <span class="chip">SonarQube</span>
+          <span class="chip">Grafana</span>
+          <span class="chip">Apigee</span>
+          <span class="chip">Linux</span>
+        </div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title">🧰 AI Dev Tools</div>
+        <div class="skill-chips">
+          <span class="chip">Cursor</span>
+          <span class="chip">Cline</span>
+          <span class="chip">Amazon Q</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════════════════════════
+       EDUCATION
+       CHANGE: Edit degree, school, period, and coursework text
+  ══════════════════════════════════ -->
+  <section id="education">
+    <div class="section-label">Education</div>
+    <h2 class="section-title">Where I studied</h2>
+
+    <div class="edu-grid">
+
+      <div class="edu-card">
+        <div class="edu-degree">MS Computer Science</div>
+        <div class="edu-school">Stony Brook University, New York</div>
+        <div class="edu-period">Aug 2025 — May 2027</div>
+        <div class="edu-courses">
+          <strong>Coursework:</strong> Database Systems · Vision Language Modeling & Intelligence · Computer Vision · Data Science
+        </div>
+      </div>
+
+      <div class="edu-card">
+        <div class="edu-degree">BTech Computer Engineering</div>
+        <div class="edu-school">Veermata Jijabai Technological Institute, India</div>
+        <div class="edu-period">Aug 2019 — May 2023</div>
+        <div class="edu-courses">
+          <strong>Coursework:</strong> Algorithms · Database Systems · Machine Learning · Operating Systems · Cloud Computing · Networks · Big Data
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- ══════════════════════════════════
+       CONTACT
+       CHANGE: Update email href, LinkedIn URL, GitHub URL
+  ══════════════════════════════════ -->
+  <section id="contact">
+    <div class="contact-wrap">
+      <div class="section-label" style="justify-content:center">Let's Connect</div>
+      <h2 class="section-title">Get in touch</h2>
+
+      <a href="mailto:joy.purohit@stonybrook.edu" class="contact-email">
+        ✉ joy.purohit@stonybrook.edu
+      </a>
+
+      <div class="socials">
+        <!-- CHANGE: Replace href with your actual LinkedIn profile URL -->
+        <a href="https://linkedin.com/in/joy-purohit" target="_blank" class="social-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+          LinkedIn
+        </a>
+        <!-- CHANGE: Replace href with your actual GitHub profile URL -->
+        <a href="https://github.com/" target="_blank" class="social-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+          GitHub
+        </a>
+        <!-- CHANGE: Update href to your actual resume PDF -->
+        <a href="JoyPurohit_Microsoft.pdf" download class="social-btn">
+          ↓ Résumé PDF
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════
+       FOOTER
+       CHANGE: Update year and name
+  ══════════════════════════════════ -->
+  <footer>
+    © 2025 Joy Purohit · Built with HTML, CSS & JS · Hosted on GitHub Pages
+  </footer>
+
+  <!-- ════════════════════════════════════
+       JS: Scroll-triggered animations
+  ════════════════════════════════════ -->
+  <script>
+    // Observe elements and add 'visible' class when in view
+    const observer = new IntersectionObserver(
+      entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); }),
+      { threshold: 0.12 }
+    );
+    document.querySelectorAll('.timeline-item, .project-card').forEach(el => observer.observe(el));
+
+    // Stagger project cards
+    document.querySelectorAll('.project-card').forEach((card, i) => {
+      card.style.transitionDelay = `${i * 0.1}s`;
+    });
+
+    // Nav shrink on scroll
+    window.addEventListener('scroll', () => {
+      document.querySelector('nav').style.padding =
+        window.scrollY > 60 ? '12px 60px' : '20px 60px';
+    });
+  </script>
+
+</body>
+</html>
